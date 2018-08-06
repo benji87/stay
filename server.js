@@ -10,9 +10,9 @@ const path = require('path');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use( express.static( `${__dirname}/washing/build` ) );
+app.use( express.static( `${__dirname}/${PROJECT_NAME}/build` ) );
 
-app.get('/api/stats', (req, res) => {
+app.get(`/api/${API_VERSION}/stats`, (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.setHeader('Content-Type', 'application/json');
@@ -22,7 +22,7 @@ app.get('/api/stats', (req, res) => {
 
     MongoClient.connect(mongoUrl, (err, db) => {
         if (err) throw err;
-        const dbo = db.db("washing");
+        const dbo = db.db("stay");
         const query = { sensor: stat };
         dbo.collection("stats").find(query).sort('_id', -1).limit(numResults).toArray((err, result) => {
             if (err) throw err;
@@ -32,7 +32,7 @@ app.get('/api/stats', (req, res) => {
     });
 });
 
-app.get('/api/status', (req, res) => {
+app.get(`/api/${API_VERSION}/status`, (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.setHeader('Content-Type', 'application/json');
@@ -41,7 +41,7 @@ app.get('/api/status', (req, res) => {
 
     MongoClient.connect(mongoUrl, (err, db) => {
         if (err) throw err;
-        const dbo = db.db("washing");
+        const dbo = db.db("stay");
         const query = { device: device };
         dbo.collection("device").find(query).toArray((err, result) => {
             if (err) throw err;
@@ -51,14 +51,14 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-app.get('/api/weather', (req, res) => {
+app.get(`/api/${API_VERSION}/weather`, (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.setHeader('Content-Type', 'application/json');
 
     MongoClient.connect(mongoUrl, (err, db) => {
         if (err) throw err;
-        const dbo = db.db("washing");
+        const dbo = db.db("stay");
         const query = { sensor: 'weather' };
         dbo.collection("stats").find(query).toArray((err, result) => {
             if (err) throw err;
@@ -70,7 +70,7 @@ app.get('/api/weather', (req, res) => {
 });
 
 app.get('/', (req, res)=>{
-    res.sendFile(path.join(__dirname, '/washing/build/index.html', 'index.html'));
+    res.sendFile(path.join(__dirname, `/${PROJECT_NAME}/build/index.html`, 'index.html'));
 });
 
 app.listen(5000, () => console.log('Webhook server is listening, port 5000'));
@@ -220,7 +220,7 @@ const insertDocument = (collection, data, callback) => {
     MongoClient.connect(mongoUrl, (error, client) => {
         if(error) throw error;
 
-        const db = client.db('washing');
+        const db = client.db('stay');
 
         db.collection(collection).insert(
             data, (error, response) => {
@@ -237,7 +237,7 @@ const updateDocument = (collection, data, callback) => {
     MongoClient.connect(mongoUrl, function(error, db) {
         if(error) throw error;
 
-        const dbo = db.db("washing");
+        const dbo = db.db("stay");
 
         dbo.collection(collection).updateOne(data.query, data.update, function (err, result) {
             if (err) throw err;
